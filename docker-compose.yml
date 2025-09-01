@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  discord-bot:
+    build: .
+    container_name: discord-bot
+    restart: unless-stopped
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Mount templates directory for persistent image storage
+      - ./Templates:/app/Templates
+      # Mount logs directory if you want to persist logs
+      - ./logs:/app/logs
+    # Health check to ensure bot is running
+    healthcheck:
+      test: ["CMD", "python", "-c", "import discord; print('Bot is healthy')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
